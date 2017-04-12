@@ -74,5 +74,10 @@
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.osgi.foundation</artifactId>
+          <version>RELEASE</version>
+      </dependency>
   </dependencies>
 </project>

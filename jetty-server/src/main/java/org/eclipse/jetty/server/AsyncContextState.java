@@ -18,7 +18,9 @@
 
 package org.eclipse.jetty.server;
 
-import java.io.IOException;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
@@ -28,11 +30,44 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.eclipse.jetty.server.handler.ContextHandler;
+import java.io.IOException;
 
+class NezihAsyncListener implements AsyncListener
+{
+    private static final Logger LOG = Log.getLogger(NezihAsyncListener.class);
 
+    @Override
+    public void onComplete(AsyncEvent event)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public void onTimeout(AsyncEvent event)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public void onError(AsyncEvent event)
+            throws IOException
+    {
+        LOG.info("Calling event.getAsyncContext().complete()");
+        event.getAsyncContext().complete();
+    }
+
+    @Override
+    public void onStartAsync(AsyncEvent event)
+            throws IOException
+    {
+
+    }
+}
 public class AsyncContextState implements AsyncContext
 {
+    private static final Logger LOG = Log.getLogger(AsyncContextState.class);
     private final HttpChannel _channel;
     volatile HttpChannelState _state;
 
@@ -40,6 +75,7 @@ public class AsyncContextState implements AsyncContext
     {
         _state=state;
         _channel=_state.getHttpChannel();
+        addListener(new NezihAsyncListener());
     }
     
     public HttpChannel getHttpChannel()
@@ -50,14 +86,16 @@ public class AsyncContextState implements AsyncContext
     HttpChannelState state()
     {
         HttpChannelState state=_state;
-        if (state==null)
-            throw new IllegalStateException("AsyncContext completed and/or Request lifecycle recycled");
+        if (state==null) {
+            throw new IllegalStateException("AsyncContext completed and/or Request lifecycle recycled " + _channel.getRequest().getDispatcherType());
+        }
         return state;
     }
 
     @Override
     public void addListener(final AsyncListener listener, final ServletRequest request, final ServletResponse response)
     {
+        LOG.info("Adding listener " + listener.getClass().getName());
         AsyncListener wrap = new AsyncListener()
         {
             @Override

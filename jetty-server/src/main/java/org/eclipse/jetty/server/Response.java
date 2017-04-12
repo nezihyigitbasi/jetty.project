@@ -20,6 +20,7 @@ package org.eclipse.jetty.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.channels.IllegalSelectorException;
 import java.util.Collection;
 import java.util.Collections;
@@ -818,8 +819,12 @@ public class Response implements HttpServletResponse
     @Override
     public ServletOutputStream getOutputStream() throws IOException
     {
+//        StringWriter sw = new StringWriter();
+//        new Throwable("").printStackTrace(new PrintWriter(sw));
+//
+//        LOG.info("************ getOutputStream called this: {}, channel: {} called from {}", this, _channel, sw.toString());
         if (_outputType == OutputType.WRITER)
-            throw new IllegalStateException("WRITER");
+            throw new IllegalStateException("WRITER " + getHttpChannel().getRequest().getDispatcherType());
         _outputType = OutputType.STREAM;
         return _out;
     }
@@ -832,6 +837,10 @@ public class Response implements HttpServletResponse
     @Override
     public PrintWriter getWriter() throws IOException
     {
+//        StringWriter sw = new StringWriter();
+//        new Throwable("").printStackTrace(new PrintWriter(sw));
+//
+//        LOG.info("************ getWriter called this: {}, channel: {} called from {}", this, _channel, sw.toString());
         if (_outputType == OutputType.STREAM)
             throw new IllegalStateException("STREAM");
 
